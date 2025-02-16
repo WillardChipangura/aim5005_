@@ -1,4 +1,4 @@
-from aim5005.features import MinMaxScaler, StandardScaler
+from aim5005.features import MinMaxScaler, StandardScaler, LabelEncoder
 import numpy as np
 import unittest
 from unittest.case import TestCase
@@ -51,6 +51,7 @@ class TestFeatures(TestCase):
         data = [[0, 0], [0, 0], [1, 1], [1, 1]]
         expected = np.array([[-1., -1.], [-1., -1.], [1., 1.], [1., 1.]])
         scaler.fit(data)
+        result=scaler.transform(data)
         assert (result == expected).all(), "Scaler transform does not return expected values. Expect {}. Got: {}".format(expected.reshape(1,-1), result.reshape(1,-1))
         
     def test_standard_scaler_single_value(self):
@@ -62,6 +63,34 @@ class TestFeatures(TestCase):
         assert (result == expected).all(), "Scaler transform does not return expected values. Expect {}. Got: {}".format(expected.reshape(1,-1), result.reshape(1,-1))
 
     # TODO: Add a test of your own below this line
-    
+    def test_label_encoder_numbers(self):
+        
+
+    # Example data: numbers with duplicates
+        data = [3, 1, 2, 3, 1]
+        
+        # After fitting, np.unique will sort the classes: [1, 2, 3]
+        expected_classes = np.array([1, 2, 3])
+        
+        encoder = LabelEncoder()
+        encoder.fit(data)
+        assert np.array_equal(encoder.classes_, expected_classes), (
+            f"Expected classes_ to be {expected_classes}, got {encoder.classes_}"
+        )
+        
+        # Test transform: mapping should be as follows:
+        # 1 -> 0, 2 -> 1, 3 -> 2, so [3, 1, 2, 3, 1] transforms to [2, 0, 1, 2, 0]
+        expected_transformed = np.array([2, 0, 1, 2, 0])
+        transformed = encoder.transform(data)
+        assert np.array_equal(transformed, expected_transformed), (
+            f"Expected transform to return {expected_transformed}, got {transformed}"
+        )
+        
+        # Test fit_transform
+        encoder2 = LabelEncoder()
+        fit_transformed = encoder2.fit_transform(data)
+        assert np.array_equal(fit_transformed, expected_transformed), (
+            f"Expected fit_transform to return {expected_transformed}, got {fit_transformed}"
+        )
 if __name__ == '__main__':
     unittest.main()
